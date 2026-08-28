@@ -379,6 +379,123 @@ body.ui-hidden .stack{padding-top:16px}
 .sheet.tighter .ruler-block,.sheet.tighter .cols,.sheet.tighter .duo,.sheet.tighter .dl,.sheet.tighter .foot{padding-top:1.9mm}
 .sheet.tighter .ruler{height:16mm}
 
+
+/* ============================================================
+   MOBILE  (screen only — print output is unaffected)
+   Unbinds the fixed 8.5x11 page: the sheet becomes a full-width
+   card of natural height, and every side-by-side section stacks.
+   ============================================================ */
+@media screen and (max-width:820px){
+  body{background:#5F656F}
+  .stack{padding:12px 0 40px}
+
+  .sheet{
+    width:auto;height:auto;min-height:0;
+    margin:0 10px 14px;
+    padding:0 0 18px;
+    border-radius:8px;
+    overflow:visible;
+    box-shadow:0 2px 10px rgba(0,0,0,.3);
+  }
+
+  /* verdict rail: vertical spine becomes a header bar */
+  .rail{
+    position:static;width:auto;height:auto;
+    flex-direction:row;justify-content:space-between;align-items:center;
+    padding:9px 15px;border-radius:8px 8px 0 0;
+  }
+  .rail span{writing-mode:horizontal-tb;transform:none;font-size:11px;letter-spacing:.22em}
+  .rail .idx{position:static;transform:none;font-size:11px;color:rgba(255,255,255,.8)}
+
+  .body{margin-left:0;padding:0 15px;display:block}
+
+  .eyebrow{padding:13px 0 6px;font-size:10px}
+  .hdr{flex-direction:column;gap:12px}
+  .name{font-size:27px}
+  .where{font-size:15px;margin-top:6px}
+  .verdict{text-align:left;padding-top:0}
+  .verdict-badge{font-size:13px;padding:5px 11px}
+  .verdict-sub{font-size:10px;margin-top:6px}
+
+  .rule-hr{margin-top:15px}
+  .sec-label{font-size:10px;letter-spacing:.16em;margin-bottom:8px}
+
+  /* score ruler — taller, legible tick labels */
+  .ruler-block{padding-top:15px}
+  .ruler{height:72px;margin-top:4px}
+  .ruler-track{top:32px;height:10px}
+  .ruler-band,.ruler-band-line{top:24px;height:26px}
+  .tick{top:44px;height:7px}
+  .tick-lab{top:53px;font-size:10px}
+  .band-lab{top:4px;font-size:12px}
+  .you{top:8px;height:42px;border-left-width:2px}
+  .you-flag{top:-2px;font-size:11px;padding:2px 7px}
+  .ruler-cap{flex-direction:column;gap:3px;font-size:12px;margin-top:6px}
+
+  /* stacked sections */
+  .cols,.duo{display:block;padding-top:15px}
+  .col-a{width:auto}
+  .col-b{margin-top:15px}
+  .duo > div + div{margin-top:15px}
+
+  .stat{padding:9px 0}
+  .stat-k{font-size:10px}
+  .stat-v{font-size:15px}
+  .stat-n{font-size:12.5px;margin-top:3px}
+
+  .prose,.feel{font-size:14.5px;line-height:1.6}
+  .known{font-size:15.5px}
+
+  .checks{grid-template-columns:1fr;gap:7px;padding-top:11px}
+  .check{padding:9px 11px}
+  .check-t{font-size:14px}
+  .check-s{font-size:10px;margin-top:3px}
+
+  .trip{gap:7px}
+  .trip-row{font-size:14.5px}
+  .trip-row b{font-size:14.5px}
+
+  /* deadline timeline — needs real height once labels are readable */
+  .dl{padding-top:15px}
+  .tl{height:74px}
+  .tl-axis{top:38px}
+  .tl-month{top:12px}
+  .tl-mlab{top:0;font-size:10px}
+  .tl-mark.up{top:14px;height:26px}
+  .tl-mark.dn{top:38px;height:30px}
+  .tl-lab{font-size:10px}
+  .tl-date{font-size:9.5px}
+  .tl-lane{font-size:9px}
+  .tl-glyph{width:9px;height:9px}
+  .tl-glyph.tri{width:0;height:0;border-left-width:5px;border-right-width:5px;border-top-width:9px}
+  .dl-rows{gap:5px 16px;margin-top:9px}
+  .dl-row{font-size:12.5px;white-space:normal}
+  .dl-row b{font-size:12px}
+
+  .photo{height:auto;aspect-ratio:16/10;margin-bottom:12px}
+
+  .foot{padding-top:15px;display:block}
+  .notes{min-height:0}
+  .notes-lines{min-height:70px;margin-top:6px}
+  .notes-text{font-size:14.5px}
+  .colophon{margin-top:14px;padding-top:9px;font-size:9.5px}
+
+  /* toolbar */
+  .bar-in{padding:9px 12px;gap:11px}
+  .brand{font-size:16px}
+  .note-strip{padding:0 12px 9px;font-size:12px}
+  .bar input[type=range]{width:96px}
+  .chips{gap:4px}
+  #uiToggle{top:7px;right:8px;padding:6px 10px}
+}
+
+@media screen and (max-width:420px){
+  .sheet{margin:0 6px 12px}
+  .body{padding:0 12px}
+  .name{font-size:24px}
+  .bar-in{gap:9px}
+}
+
 /* ============================================================
    PRINT
    ============================================================ */
@@ -898,7 +1015,11 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(autofit);
 window.addEventListener('beforeprint', autofit);
 
 function autofit(){
+  /* The fit cascade exists to stop content overflowing a fixed 11in page.
+     On the mobile layout sheets grow to fit, so it must not run. */
+  const flowing = window.matchMedia && window.matchMedia('(max-width:820px)').matches;
   document.querySelectorAll('.sheet').forEach(s => {
+    if (flowing){ s.classList.remove('tight','tighter'); return; }
     try {
       const b = s.querySelector('.body');
       if (!b) return;
