@@ -681,11 +681,13 @@ function verdictFor(c, you){
   const half = Math.max((p75 - p25) / 2, 1);
   const z    = (you - mid) / half;              // +1 = at 75th, -1 = at 25th
 
-  let shift = 0;                                 // harder schools demand more headroom
+  // Harder schools demand more headroom. Below 25% the penalty ramps
+  // continuously rather than stepping, so a 13% school and a 5% school are
+  // no longer treated as equally out of reach. Above 25% the old bands hold.
+  let shift = 0;
   const r = sel.rate;
   if (r == null) shift = 0;
-  else if (r < 15) shift = -1.75;
-  else if (r < 25) shift = -1.0;
+  else if (r < 25) shift = -0.5 - 1.5 * (25 - r) / 25;
   else if (r < 40) shift = -0.5;
   else if (r < 50) shift = 0;
   else shift = 0.4;
